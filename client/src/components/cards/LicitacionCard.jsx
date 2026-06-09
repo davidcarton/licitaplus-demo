@@ -1,0 +1,241 @@
+import { useState } from 'react'
+import { Building2, MapPin, Calendar, Tag, FileText, ExternalLink, Clock } from 'lucide-react'
+import Badge from '../ui/Badge.jsx'
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function diasRestantes(fechaStr) {
+  if (!fechaStr) return null
+  const hoy = new Date(); hoy.setHours(0,0,0,0)
+  return Math.ceil((new Date(fechaStr) - hoy) / (1000*60*60*24))
+}
+
+function tipoBadge(fechaStr) {
+  const d = diasRestantes(fechaStr)
+  if (d === null) return 'sinplazo'
+  if (d < 7) return 'urgente'
+  if (d <= 14) return 'proximo'
+  return 'enplazo'
+}
+
+function formatFecha(fechaStr) {
+  if (!fechaStr) return null
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic']
+  const d = new Date(fechaStr)
+  if (isNaN(d)) return fechaStr
+  return `${d.getDate()} ${meses[d.getMonth()]} ${d.getFullYear()}`
+}
+
+function formatImporte(valor) {
+  if (!valor && valor !== 0) return null
+  const n = parseFloat(valor)
+  if (isNaN(n)) return null
+  return n.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
+}
+
+function descripcionCPV(cpvStr) {
+  if (!cpvStr) return 'Obra de construcción'
+  const p = String(cpvStr).split(/\s+/).find(c => c.startsWith('45')) || ''
+  const t = { '450':'Construcción general','451':'Demolición y preparación','452':'Ingeniería civil','453':'Instalaciones en edificios','454':'Acabados de construcción','455':'Alquiler de maquinaria' }
+  return t[p.substring(0,3)] || 'Obra de construcción'
+}
+
+const barraColor = {
+  urgente: 'var(--rojo)',
+  proximo: 'var(--ambar)',
+  enplazo: 'var(--g500)',
+  sinplazo: 'var(--n100)',
+}
+
+// ─── Sub-componente: celda de metadato ────────────────────────────────────────
+
+function MetaCell({ icon, label, value, mono, gris }) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        fontSize: 10, fontWeight: 700, color: 'var(--n300)',
+        textTransform: 'uppercase', letterSpacing: '0.08em',
+      }}>
+        {icon}
+        {label}
+      </div>
+      <span style={{
+        fontSize: 13, fontWeight: 600,
+        color: gris ? 'var(--n300)' : 'var(--n700)',
+        fontFamily: mono ? 'ui-monospace, monospace' : undefined,
+        fontSize: mono ? 11 : 13,
+        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+      }}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+// ─── Tarjeta ──────────────────────────────────────────────────────────────────
+
+export default function LicitacionCard({ licitacion: l, onClick }) {
+  const [hovered, setHovered] = useState(false)
+  const tipo = tipoBadge(l.fechaLimite)
+  const dias = diasRestantes(l.fechaLimite)
+  const importeNum = formatImporte(l.importe)
+  const tieneEnlace = l.enlace && l.enlace !== '#'
+  const provincia = l.provincia || 'España'
+
+  return (
+    <article
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: '#fff',
+        borderRadius: 'var(--r-xl)',
+        boxShadow: hovered ? 'var(--shadow-hover)' : 'var(--shadow-card)',
+        border: `1px solid ${hovered ? 'var(--g200)' : 'var(--n100)'}`,
+        overflow: 'hidden',
+        cursor: 'pointer',
+        display: 'flex', flexDirection: 'column',
+        transition: 'transform var(--transition), box-shadow var(--transition), border-color var(--transition)',
+        transform: hovered ? 'translateY(-3px)' : 'translateY(0)',
+      }}
+    >
+      {/* Franja superior de color */}
+      <div style={{ height: 4, background: barraColor[tipo], width: '100%', flexShrink: 0 }} />
+
+      {/* Cuerpo */}
+      <div style={{ padding: '18px 20px 16px', display: 'flex', flexDirection: 'column', flex: 1 }}>
+
+        {/* Fila 1: Badge + Importe */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
+          <Badge tipo={tipo} dias={dias} />
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            {importeNum ? (
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: 20, fontWeight: 700,
+                color: 'var(--g700)', lineHeight: 1,
+              }}>
+                {importeNum} €
+              </span>
+            ) : (
+              <span style={{ fontSize: 13, color: 'var(--n300)', fontStyle: 'italic' }}>
+                Consultar
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Fila 2: Título — máximo 2 líneas */}
+        <h2 style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: 15, fontWeight: 700,
+          color: 'var(--n900)',
+          lineHeight: 1.35,
+          marginTop: 12,
+          minHeight: 40,
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+        }}>
+          {l.titulo || 'Sin título'}
+        </h2>
+
+        {/* Fila 3: Organismo */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 5,
+          marginTop: 6, overflow: 'hidden',
+        }}>
+          <Building2 size={13} color="var(--n300)" style={{ flexShrink: 0 }} />
+          <span style={{
+            fontSize: 12, color: 'var(--n500)', fontWeight: 500,
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          }}>
+            {l.organismo || 'No especificado'}
+          </span>
+        </div>
+
+        {/* Separador */}
+        <div style={{ height: 1, background: 'var(--n50)', width: '100%', margin: '14px 0' }} />
+
+        {/* Grid de metadatos */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 16px' }}>
+          <MetaCell
+            icon={<Calendar size={11} />}
+            label="Fecha límite"
+            value={formatFecha(l.fechaLimite) || 'Sin plazo'}
+            gris={!l.fechaLimite}
+          />
+          <MetaCell
+            icon={<MapPin size={11} />}
+            label="Provincia"
+            value={provincia}
+          />
+          <MetaCell
+            icon={<Tag size={11} />}
+            label="Tipo de obra"
+            value={descripcionCPV(l.cpv)}
+          />
+          <MetaCell
+            icon={<FileText size={11} />}
+            label="Expediente"
+            value={l.expediente || '—'}
+            mono
+          />
+        </div>
+
+        {/* Botón Ver licitación */}
+        <div style={{ marginTop: 16 }}>
+          {tieneEnlace ? (
+            <a
+              href={l.enlace}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                width: '100%', padding: '11px 16px',
+                background: 'var(--g700)', color: '#fff',
+                borderRadius: 'var(--r-md)',
+                fontSize: 13, fontWeight: 600,
+                transition: 'background var(--transition)',
+                fontFamily: 'var(--font-body)',
+              }}
+              onMouseEnter={e => e.currentTarget.style.background = 'var(--g800)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'var(--g700)'}
+              onMouseDown={e => e.currentTarget.style.transform = 'scale(0.98)'}
+              onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              Ver licitación oficial
+              <ExternalLink size={13} />
+            </a>
+          ) : (
+            <button disabled style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              width: '100%', padding: '11px 16px',
+              background: 'var(--n100)', color: 'var(--n300)',
+              borderRadius: 'var(--r-md)',
+              fontSize: 13, fontWeight: 600,
+              cursor: 'not-allowed',
+            }}>
+              Enlace no disponible
+            </button>
+          )}
+        </div>
+
+        {/* Fecha publicación */}
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 4,
+          marginTop: 10,
+        }}>
+          <Clock size={10} color="var(--n100)" />
+          <span style={{ fontSize: 10, color: 'var(--n300)' }}>
+            Publicado: {formatFecha(l.fechaPublicacion) || '—'}
+          </span>
+        </div>
+      </div>
+    </article>
+  )
+}
