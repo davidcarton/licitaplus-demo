@@ -252,7 +252,7 @@ function estaEnPlazo(entry) {
 async function descargarYParsear(url) {
   const response = await axios.get(url, {
     httpsAgent: new https.Agent({ rejectUnauthorized: false }),
-    timeout: 30000,
+    timeout: 15000,
     responseType: 'text',
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
@@ -282,13 +282,6 @@ function encontrarSiguienteURL(result) {
   return next ? next.$.href : null
 }
 
-function filtrar(entries) {
-  return entries
-    .filter(entry => esObra(entry) && estaEnPlazo(entry))
-    .map(extraerDatos)
-    .filter(Boolean)
-}
-
 function ordenar(lista) {
   return lista.sort((a, b) => {
     if (!a.fechaLimite && !b.fechaLimite) return 0
@@ -300,11 +293,12 @@ function ordenar(lista) {
 
 // ─── Paginación del feed ───────────────────────────────────────────────────────
 
-const MAX_PAGINAS = 10
-const MIN_OBRAS_EN_PLAZO = 200
+const MAX_PAGINAS = 5
+const OBRAS_OBJETIVO = 300
+const PAUSA_ENTRE_PAGINAS_MS = 800
 
 async function descargarTodasLicitaciones() {
-  let todasEntradas = []
+  let todasObras = []
   let url = ATOM_URL
   let paginas = 0
 
@@ -317,17 +311,22 @@ async function descargarTodasLicitaciones() {
       break
     }
 
-    todasEntradas = todasEntradas.concat(extraerEntradas(result))
+    let entries = extraerEntradas(result)
+    const obrasPagina = entries
+      .filter(entry => esObra(entry) && estaEnPlazo(entry))
+      .map(extraerDatos)
+      .filter(Boolean)
+    todasObras = todasObras.concat(obrasPagina)
+    entries = null // liberar memoria
     paginas++
 
-    const obrasEnPlazo = todasEntradas.filter(entry => esObra(entry) && estaEnPlazo(entry))
-    if (obrasEnPlazo.length >= MIN_OBRAS_EN_PLAZO) break
+    if (todasObras.length >= OBRAS_OBJETIVO) break
 
     url = encontrarSiguienteURL(result)
-    if (url) await new Promise(r => setTimeout(r, 500))
+    if (url) await new Promise(r => setTimeout(r, PAUSA_ENTRE_PAGINAS_MS))
   }
 
-  return todasEntradas
+  return todasObras
 }
 
 // ─── Descarga principal ────────────────────────────────────────────────────────
@@ -335,14 +334,13 @@ async function descargarTodasLicitaciones() {
 async function descargarYProcesar() {
   try {
     console.log('[placsp] Descargando ATOM...')
-    const entradas = await descargarTodasLicitaciones()
-    const licitaciones = filtrar(entradas)
+    const todasObras = await descargarTodasLicitaciones()
 
     const ahora = new Date()
-    cache.datos = ordenar(licitaciones)
+    cache.datos = ordenar(todasObras)
     cache.ultimaActualizacion = ahora.toISOString()
     cache.proximaActualizacion = getProximaActualizacion().toISOString()
-    console.log(`[placsp] OK — ${licitaciones.length} licitaciones de construcción`)
+    console.log(`[placsp] OK — ${todasObras.length} obras en plazo`)
   } catch (err) {
     console.error('[placsp] Error en descarga:', err.message)
   }
