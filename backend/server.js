@@ -12,8 +12,10 @@ const cron = require('node-cron')
 const authRoutes = require('./src/routes/auth')
 const licitacionesRoutes = require('./src/routes/licitaciones')
 
+const corsOrigins = (process.env.CORS_ORIGINS || '').split(',').map(o => o.trim()).filter(Boolean)
+
 const app = express()
-app.use(cors())
+app.use(cors(corsOrigins.length ? { origin: corsOrigins, credentials: true } : {}))
 app.use(express.static(path.join(__dirname, '..', 'public')))
 
 app.use(express.json())
