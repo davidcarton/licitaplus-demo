@@ -396,7 +396,7 @@ if (fs.existsSync(clientDist)) {
 
 const PORT = process.env.PORT || 3000
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`\nLicitaPlus corriendo en http://localhost:${PORT}`)
+  console.log(`\nLiciTracker corriendo en http://localhost:${PORT}`)
 
   const interfaces = os.networkInterfaces()
   for (const ifaces of Object.values(interfaces)) {

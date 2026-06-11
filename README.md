@@ -1,4 +1,4 @@
-# LicitaPlus Demo
+# LiciTracker Demo
 
 ## Cómo arrancar
 

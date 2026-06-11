@@ -1,12 +1,12 @@
 version: '3.8'
 
 networks:
-  licitaplus-net:
-    name: licitaplus-net
+  licitracker-net:
+    name: licitracker-net
     driver: bridge
 
 services:
-  licitaplus-db:
+  licitracker-db:
     image: postgres:16
     restart: always
     environment:
@@ -17,14 +17,14 @@ services:
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
-      - licitaplus-pgdata:/var/lib/postgresql/data
+      - licitracker-pgdata:/var/lib/postgresql/data
     networks:
-      - licitaplus-net
+      - licitracker-net
 
   pgadmin:
     image: dpage/pgadmin4
     depends_on:
-      - licitaplus-db
+      - licitracker-db
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
@@ -32,7 +32,7 @@ services:
     ports:
       - "127.0.0.1:8082:8080"
     networks:
-      - licitaplus-net
+      - licitracker-net
 
 volumes:
-  licitaplus-pgdata:
+  licitracker-pgdata:
