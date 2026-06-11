@@ -20,6 +20,13 @@
   --ambar-bg:    #fffbeb;
   --ambar-borde: #fde68a;
 
+  /* Paleta dashboard privado (Benco) */
+  --verde:       #2A5938;
+  --verde-medio: #3D7A4F;
+  --verde-claro: #EAF4EE;
+  --gris-fondo:  #F4F6F5;
+  --negro:       #1E2A22;
+
   --font-display: 'Syne', sans-serif;
   --font-body:    'DM Sans', sans-serif;
   --font-mono:    'JetBrains Mono', ui-monospace, monospace;
