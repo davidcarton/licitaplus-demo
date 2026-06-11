@@ -60,6 +60,7 @@ export default function LicitacionCard({ licitacion: l, onClick }) {
         boxShadow: hovered ? 'var(--shadow-hover)' : 'var(--shadow-card)',
         border: `1px solid ${hovered ? 'var(--g200)' : 'var(--n100)'}`,
         overflow: 'hidden',
+        wordBreak: 'break-word',
         cursor: 'pointer',
         display: 'flex', flexDirection: 'row',
         transition: 'transform var(--transition), box-shadow var(--transition), border-color var(--transition)',
@@ -105,6 +106,8 @@ export default function LicitacionCard({ licitacion: l, onClick }) {
           WebkitBoxOrient: 'vertical',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
+          wordBreak: 'break-word',
+          overflowWrap: 'break-word',
         }}>
           {l.titulo || 'Sin título'}
         </h2>
@@ -118,6 +121,7 @@ export default function LicitacionCard({ licitacion: l, onClick }) {
           <span style={{
             fontSize: 12, color: 'var(--n500)', fontWeight: 500,
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            maxWidth: '100%',
           }}>
             {l.organismo || 'No especificado'}
           </span>
