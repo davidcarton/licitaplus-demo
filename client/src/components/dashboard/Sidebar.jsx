@@ -1,10 +1,10 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Bell, Settings } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Inicio', icon: LayoutDashboard, end: true },
-  { to: '/dashboard/licitaciones', label: 'Mis licitaciones', icon: Bell, end: false },
-  { to: '/dashboard/preferencias', label: 'Preferencias', icon: Settings, end: false },
+  { to: '/dashboard/licitaciones', label: 'Licitaciones', icon: FileText, end: false },
+  { to: '/dashboard/configuracion', label: 'Configuración', icon: Settings, end: false },
 ]
 
 export default function Sidebar() {
@@ -12,7 +12,7 @@ export default function Sidebar() {
     <aside
       className="dash-sidebar"
       style={{
-        width: 180,
+        width: 200,
         flexShrink: 0,
         background: '#1B2B1F',
         minHeight: '100vh',
@@ -32,6 +32,8 @@ export default function Sidebar() {
           alignItems: 'center',
           gap: 10,
           padding: '20px 16px',
+          height: 56,
+          boxSizing: 'border-box',
           borderBottom: '1px solid rgba(255,255,255,0.08)',
         }}
       >
@@ -80,7 +82,7 @@ export default function Sidebar() {
               textDecoration: 'none',
               borderLeft: isActive ? '3px solid #5A9A6E' : '3px solid transparent',
               background: isActive ? 'rgba(61,122,79,0.35)' : 'transparent',
-              color: isActive ? '#fff' : 'rgba(255,255,255,0.6)',
+              color: isActive ? '#fff' : 'rgba(255,255,255,0.55)',
               transition: 'background var(--transition), color var(--transition)',
             })}
           >
@@ -112,8 +114,8 @@ export default function Sidebar() {
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 12,
-            fontWeight: 800,
-            fontFamily: 'var(--font-display)',
+            fontWeight: 700,
+            fontFamily: 'var(--font-titulo)',
             flexShrink: 0,
           }}
         >

@@ -8,6 +8,7 @@ const https = require('https')
 const os = require('os')
 const path = require('path')
 const cron = require('node-cron')
+const Anthropic = require('@anthropic-ai/sdk')
 
 const authRoutes = require('./src/routes/auth')
 const licitacionesRoutes = require('./src/routes/licitaciones')
@@ -367,6 +368,52 @@ app.get('/api/licitaciones', async (req, res) => {
   } catch (err) {
     console.error('[api] Error:', err.message)
     res.json({ error: err.message || 'Error al obtener licitaciones', licitaciones: [] })
+  }
+})
+
+app.post('/api/resumen-ia', async (req, res) => {
+  try {
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'El servicio de resumen con IA no está configurado' })
+    }
+
+    const { titulo, organismo, importe, fechaLimite, cpv, enlace } = req.body || {}
+
+    const prompt = `Eres un asistente que ayuda a pequeñas constructoras a entender licitaciones públicas de forma rápida y sin tecnicismos.
+
+Te paso los datos de una licitación pública española. Genera un resumen breve y claro, en español, dirigido a una constructora que está valorando si presentarse o no.
+
+Datos de la licitación:
+- Título: ${titulo || 'No disponible'}
+- Organismo: ${organismo || 'No disponible'}
+- Importe: ${importe ? `${importe} €` : 'No disponible'}
+- Fecha límite de presentación: ${fechaLimite || 'No disponible'}
+- Código CPV: ${cpv || 'No disponible'}
+- Enlace al perfil del contratante: ${enlace || 'No disponible'}
+
+Estructura el resumen exactamente con estos apartados, usando un lenguaje sencillo y directo (evita jerga jurídica o administrativa):
+
+1. Tipo de obra y descripción
+2. Requisitos principales
+3. Documentación necesaria
+4. Plazo de ejecución (si aparece)
+5. Observaciones relevantes
+
+Termina siempre con una línea que empiece por "Recomendación:" indicando si merece la pena estudiarla.
+
+Si no tienes información suficiente para algún apartado, indícalo brevemente sin inventar datos.`
+
+    const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+    const message = await anthropic.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    res.json({ resumen: message.content[0].text })
+  } catch (err) {
+    console.error('[api] Error en resumen-ia:', err.message)
+    res.status(500).json({ error: 'No se ha podido generar el resumen con IA' })
   }
 })
 

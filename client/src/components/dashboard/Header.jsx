@@ -1,14 +1,14 @@
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Bell, Plus } from 'lucide-react'
+import { Search, Bell, Plus } from 'lucide-react'
 
-export default function Topbar({ title }) {
+export default function Header({ title }) {
   return (
     <header
+      className="dash-header"
       style={{
-        height: 58,
+        height: 56,
         flexShrink: 0,
-        background: '#fff',
-        borderBottom: '1px solid var(--n100)',
+        background: '#1B2B1F',
+        borderBottom: '1px solid rgba(255,255,255,0.08)',
         display: 'flex',
         alignItems: 'center',
         gap: 16,
@@ -18,35 +18,14 @@ export default function Topbar({ title }) {
         zIndex: 40,
       }}
     >
-      <Link
-        to="/"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          fontSize: 13,
-          fontWeight: 600,
-          color: 'var(--n500)',
-          fontFamily: 'var(--font-body)',
-          flexShrink: 0,
-          transition: 'color var(--transition)',
-        }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--verde)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--n500)')}
-      >
-        <ArrowLeft size={15} />
-        <span className="topbar-volver">Volver a la web</span>
-      </Link>
-
-      <div style={{ width: 1, height: 22, background: 'var(--n100)', flexShrink: 0 }} />
-
       <h1
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: 16,
-          fontWeight: 800,
-          color: 'var(--negro)',
+          fontFamily: 'var(--font-titulo)',
+          fontSize: 15,
+          fontWeight: 600,
+          color: '#fff',
           margin: 0,
+          flexShrink: 0,
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
@@ -54,6 +33,28 @@ export default function Topbar({ title }) {
       >
         {title}
       </h1>
+
+      <div className="dash-header-buscador" style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'relative', width: 360, maxWidth: '100%' }}>
+          <Search size={15} style={{
+            position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)',
+            color: 'rgba(255,255,255,0.5)', pointerEvents: 'none',
+          }} />
+          <input
+            type="text"
+            placeholder="Buscar..."
+            style={{
+              width: '100%',
+              padding: '8px 12px 8px 36px',
+              borderRadius: 8,
+              border: '1px solid rgba(255,255,255,0.12)',
+              background: 'rgba(255,255,255,0.08)',
+              color: '#fff',
+              fontSize: 13,
+            }}
+          />
+        </div>
+      </div>
 
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
         <button
@@ -66,13 +67,13 @@ export default function Topbar({ title }) {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'var(--gris-fondo)',
+            background: 'rgba(255,255,255,0.08)',
             transition: 'background var(--transition)',
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--n100)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--gris-fondo)')}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.16)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.08)')}
         >
-          <Bell size={17} color="var(--n500)" />
+          <Bell size={17} color="#fff" />
           <span
             style={{
               position: 'absolute',
@@ -88,7 +89,7 @@ export default function Topbar({ title }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '2px solid #fff',
+              border: '2px solid #1B2B1F',
             }}
           >
             3
@@ -96,14 +97,15 @@ export default function Topbar({ title }) {
         </button>
 
         <button
+          className="dash-header-alerta"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: 6,
-            background: 'var(--verde-medio)',
+            background: '#3D7A4F',
             color: '#fff',
-            padding: '8px 14px',
-            borderRadius: 'var(--r-md)',
+            padding: '6px 14px',
+            borderRadius: 6,
             fontSize: 13,
             fontWeight: 700,
             fontFamily: 'var(--font-body)',
@@ -111,10 +113,10 @@ export default function Topbar({ title }) {
             transition: 'background var(--transition)',
           }}
           onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--verde)')}
-          onMouseLeave={(e) => (e.currentTarget.style.background = 'var(--verde-medio)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = '#3D7A4F')}
         >
           <Plus size={15} />
-          <span className="topbar-nueva-alerta">Nueva alerta</span>
+          Nueva alerta
         </button>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -123,25 +125,25 @@ export default function Topbar({ title }) {
               width: 32,
               height: 32,
               borderRadius: '50%',
-              background: 'var(--verde-claro)',
-              color: 'var(--verde)',
+              background: 'var(--verde-medio)',
+              color: '#fff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 12,
-              fontWeight: 800,
-              fontFamily: 'var(--font-display)',
+              fontWeight: 700,
+              fontFamily: 'var(--font-titulo)',
               flexShrink: 0,
             }}
           >
             CG
           </div>
           <span
-            className="topbar-empresa"
+            className="dash-header-empresa"
             style={{
               fontSize: 13,
               fontWeight: 600,
-              color: 'var(--n700)',
+              color: '#fff',
               whiteSpace: 'nowrap',
             }}
           >
@@ -152,7 +154,10 @@ export default function Topbar({ title }) {
 
       <style>{`
         @media (max-width: 860px) {
-          .topbar-empresa, .topbar-volver, .topbar-nueva-alerta { display: none !important; }
+          .dash-header-empresa, .dash-header-alerta { display: none !important; }
+        }
+        @media (max-width: 680px) {
+          .dash-header-buscador { display: none !important; }
         }
       `}</style>
     </header>

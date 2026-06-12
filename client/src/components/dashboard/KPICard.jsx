@@ -44,9 +44,9 @@ export default function KPICard({ icon: Icon, value, label, onClick }) {
       <div>
         <div
           style={{
-            fontFamily: 'var(--font-display)',
+            fontFamily: 'var(--font-titulo)',
             fontSize: 34,
-            fontWeight: 800,
+            fontWeight: 700,
             color: 'var(--negro)',
             lineHeight: 1,
           }}

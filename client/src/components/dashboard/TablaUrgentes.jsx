@@ -2,6 +2,7 @@ import { Check } from 'lucide-react'
 import { diasRestantes, formatImporte } from '../../utils/format.js'
 
 const ESTADO_ESTILOS = {
+  Guardada:   { bg: 'var(--g50)',     color: 'var(--g700)', border: 'var(--g200)' },
   Nueva:      { bg: 'var(--g50)',     color: 'var(--g700)', border: 'var(--g200)' },
   Estudiando: { bg: 'var(--ambar-bg)', color: 'var(--ambar)', border: 'var(--ambar-borde)' },
   Presentada: { bg: '#eff6ff',         color: '#1d4ed8',      border: '#bfdbfe' },
@@ -92,7 +93,7 @@ export default function TablaUrgentes({ items, estados, onMarcarPresentada }) {
                 <tr key={l.expediente || i} style={{ borderBottom: i < items.length - 1 ? '1px solid var(--n50)' : 'none' }}>
                   <td style={{ padding: '14px 18px', maxWidth: 320 }}>
                     <div style={{
-                      fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13,
+                      fontFamily: 'var(--font-titulo)', fontWeight: 700, fontSize: 13,
                       color: 'var(--negro)', lineHeight: 1.35,
                       display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
                       overflow: 'hidden', textOverflow: 'ellipsis',
@@ -105,7 +106,7 @@ export default function TablaUrgentes({ items, estados, onMarcarPresentada }) {
                   </td>
                   <td style={{ padding: '14px 18px', textAlign: 'right', whiteSpace: 'nowrap' }}>
                     {importe ? (
-                      <span style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 13, color: 'var(--verde)' }}>
+                      <span style={{ fontFamily: 'var(--font-titulo)', fontWeight: 700, fontSize: 13, color: 'var(--verde)' }}>
                         {importe} €
                       </span>
                     ) : (
