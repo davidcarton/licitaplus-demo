@@ -183,6 +183,14 @@ function tieneCPV45(entry) {
   return cpv.split(/\s+/).some(c => c.startsWith('45'))
 }
 
+// FILTRO — El CPV de la licitación contiene el código buscado (coincidencia parcial)
+function cpvCoincide(entry, codigo) {
+  const proj = entry?.ContractFolderStatus?.ProcurementProject
+  const cpvStr = getCPVFromClassification(proj?.RequiredCommodityClassification)
+  if (!cpvStr) return false
+  return cpvStr.includes(codigo)
+}
+
 // FILTRO 1 — Es una obra
 function esObra(entry) {
   const typeCode = getText(entry?.ContractFolderStatus?.ProcurementProject?.TypeCode) || ''
@@ -253,12 +261,12 @@ const MAX_PAGINAS = 5
 const OBRAS_OBJETIVO = 300
 const PAUSA_ENTRE_PAGINAS_MS = 800
 
-async function descargarTodasLicitaciones() {
-  let todasObras = []
+async function descargarYFiltrar(filtroFn, maxResultados, maxPaginas = MAX_PAGINAS) {
+  let resultados = []
   let url = ATOM_URL
   let paginas = 0
 
-  while (url && paginas < MAX_PAGINAS) {
+  while (url && paginas < maxPaginas) {
     let result
     try {
       result = await descargarYParsear(url)
@@ -268,21 +276,25 @@ async function descargarTodasLicitaciones() {
     }
 
     let entries = extraerEntradas(result)
-    const obrasPagina = entries
-      .filter(entry => esObra(entry) && estaEnPlazo(entry))
+    const pagina = entries
+      .filter(filtroFn)
       .map(extraerDatos)
       .filter(Boolean)
-    todasObras = todasObras.concat(obrasPagina)
+    resultados = resultados.concat(pagina)
     entries = null // liberar memoria
     paginas++
 
-    if (todasObras.length >= OBRAS_OBJETIVO) break
+    if (resultados.length >= maxResultados) break
 
     url = encontrarSiguienteURL(result)
     if (url) await new Promise(r => setTimeout(r, PAUSA_ENTRE_PAGINAS_MS))
   }
 
-  return todasObras
+  return resultados
+}
+
+async function descargarTodasLicitaciones() {
+  return descargarYFiltrar(entry => esObra(entry) && estaEnPlazo(entry), OBRAS_OBJETIVO)
 }
 
 // ─── Descarga principal ────────────────────────────────────────────────────────
@@ -368,6 +380,28 @@ app.get('/api/licitaciones', async (req, res) => {
   } catch (err) {
     console.error('[api] Error:', err.message)
     res.json({ error: err.message || 'Error al obtener licitaciones', licitaciones: [] })
+  }
+})
+
+app.get('/api/buscar-cpv', async (req, res) => {
+  try {
+    const codigo = (req.query.codigo || '').trim()
+    if (!codigo) {
+      return res.json({ error: 'Debes indicar un código CPV', licitaciones: [] })
+    }
+
+    const resultados = await descargarYFiltrar(
+      entry => estaEnPlazo(entry) && cpvCoincide(entry, codigo),
+      50
+    )
+
+    res.json({
+      total: resultados.length,
+      licitaciones: resultados.slice(0, 50),
+    })
+  } catch (err) {
+    console.error('[api] Error en buscar-cpv:', err.message)
+    res.json({ error: err.message || 'Error al buscar por CPV', licitaciones: [] })
   }
 })
 
