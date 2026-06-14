@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const db = require('../db')
 const auth = require('../middleware/auth')
+const logger = require('../utils/logger')
 
 const ESTADOS_VALIDOS = ['guardada', 'en_estudio', 'presentada', 'descartada', 'ganada', 'perdida']
 
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 
     res.json({ guardadas })
   } catch (err) {
-    console.error('[guardadas] Error al listar:', err.message)
+    logger.error('guardadas', 'Error al listar: ' + err.message)
     res.status(500).json({ error: 'No se han podido cargar las licitaciones guardadas' })
   }
 })
@@ -56,7 +57,7 @@ router.post('/guardar', async (req, res) => {
 
     res.status(201).json({ guardada })
   } catch (err) {
-    console.error('[guardadas] Error al guardar:', err.message)
+    logger.error('guardadas', 'Error al guardar: ' + err.message)
     res.status(500).json({ error: 'No se ha podido guardar la licitación' })
   }
 })
@@ -79,7 +80,7 @@ router.patch('/:id/estado', async (req, res) => {
 
     res.json({ guardada: actualizada })
   } catch (err) {
-    console.error('[guardadas] Error al actualizar estado:', err.message)
+    logger.error('guardadas', 'Error al actualizar estado: ' + err.message)
     res.status(500).json({ error: 'No se ha podido actualizar el estado' })
   }
 })
@@ -96,7 +97,7 @@ router.delete('/:id', async (req, res) => {
 
     res.json({ ok: true })
   } catch (err) {
-    console.error('[guardadas] Error al eliminar:', err.message)
+    logger.error('guardadas', 'Error al eliminar: ' + err.message)
     res.status(500).json({ error: 'No se ha podido eliminar la licitación guardada' })
   }
 })

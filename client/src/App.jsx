@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard.jsx'
 import Licitaciones from './pages/Licitaciones.jsx'
 import ResumenIA from './pages/ResumenIA.jsx'
 import Configuracion from './pages/Configuracion.jsx'
+import Admin from './pages/Admin.jsx'
 import './styles/global.css'
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="/dashboard/licitaciones" element={<RutaProtegida><Licitaciones /></RutaProtegida>} />
             <Route path="/dashboard/resumen" element={<RutaProtegida><ResumenIA /></RutaProtegida>} />
             <Route path="/dashboard/configuracion" element={<RutaProtegida><Configuracion /></RutaProtegida>} />
+            <Route path="/dashboard/admin" element={<RutaProtegida><Admin /></RutaProtegida>} />
           </Routes>
         </HashRouter>
       </AppProvider>

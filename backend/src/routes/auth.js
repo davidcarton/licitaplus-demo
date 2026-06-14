@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const db = require('../db')
 const auth = require('../middleware/auth')
+const logger = require('../utils/logger')
 
 function generarToken(usuario) {
   return jwt.sign(
@@ -61,7 +62,7 @@ router.post('/register', async (req, res) => {
     const token = generarToken(usuario)
     res.status(201).json({ token, usuario: datosPublicos(usuario, empresa) })
   } catch (err) {
-    console.error('[auth] Error en register:', err.message)
+    logger.error('auth', 'Error en register: ' + err.message)
     res.status(500).json({ error: 'No se ha podido completar el registro' })
   }
 })
@@ -89,7 +90,7 @@ router.post('/login', async (req, res) => {
     const token = generarToken(usuario)
     res.json({ token, usuario: datosPublicos(usuario, empresa) })
   } catch (err) {
-    console.error('[auth] Error en login:', err.message)
+    logger.error('auth', 'Error en login: ' + err.message)
     res.status(500).json({ error: 'No se ha podido iniciar sesión' })
   }
 })
@@ -107,7 +108,7 @@ router.get('/me', auth, async (req, res) => {
     const empresa = await db('empresas').where({ id: usuario.empresa_id }).first()
     res.json({ usuario: datosPublicos(usuario, empresa) })
   } catch (err) {
-    console.error('[auth] Error en /me:', err.message)
+    logger.error('auth', 'Error en /me: ' + err.message)
     res.status(500).json({ error: 'No se ha podido obtener el usuario' })
   }
 })

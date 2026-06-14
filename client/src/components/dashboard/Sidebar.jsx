@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, FileText, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, FileText, Settings, LogOut, ShieldCheck } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext.jsx'
 import { iniciales } from '../../utils/format.js'
 
@@ -9,10 +9,13 @@ const NAV_ITEMS = [
   { to: '/dashboard/configuracion', label: 'Configuración', icon: Settings, end: false },
 ]
 
+const NAV_ITEM_ADMIN = { to: '/dashboard/admin', label: 'Administración', icon: ShieldCheck, end: false }
+
 export default function Sidebar() {
   const { usuario, logout } = useAuth()
   const navigate = useNavigate()
   const nombreEmpresa = usuario?.empresa?.nombre || 'Mi empresa'
+  const navItems = usuario?.rol === 'superadmin' ? [...NAV_ITEMS, NAV_ITEM_ADMIN] : NAV_ITEMS
 
   const handleLogout = () => {
     logout()
@@ -75,7 +78,7 @@ export default function Sidebar() {
 
       {/* Navegación */}
       <nav style={{ flex: 1, padding: '16px 10px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-        {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+        {navItems.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}
             to={to}
